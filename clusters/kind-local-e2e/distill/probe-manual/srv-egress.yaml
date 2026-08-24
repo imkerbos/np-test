@@ -1,24 +1,24 @@
 # Distill 已确认策略导出
 # 集群: kind-local-e2e
 # 命名空间筛选: 全集群
-# 本文件命名空间: probe-ipblock
-# 时间窗: 2026-08-24T09:51:44Z ~ 2026-08-24T09:51:53Z
-# dry-run WOULD_BREAK: 17
+# 本文件命名空间: probe-manual
+# 时间窗: 2026-08-24T11:21:05Z ~ 2026-08-24T11:36:05Z
+# dry-run WOULD_BREAK: 25
 # dry-run WOULD_OPEN: 0
 # dry-run UNCHANGED: 7
-# dry-run UNKNOWN: 49
+# dry-run UNKNOWN: 30
 # 策略文档: 1 份，启用规则: 2 条
 # 以上 dry-run 计数是整集群口径，不是本命名空间的影响。
 # 导出者: admin
-# 导出时刻: 2026-08-24T10:18:23Z
+# 导出时刻: 2026-08-24T11:58:35Z
 # 以上 dry-run 结论算的是导出这一刻的集群状态，不是应用这一刻的。
 # 集群在此之后发生的变化不在其中；应用前请重新导出并核对这几个数字。
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: candidate-srv
-  namespace: probe-ipblock
+  name: candidate-srv-egress
+  namespace: probe-manual
 spec:
   egress:
   - ports:
@@ -43,5 +43,4 @@ spec:
     matchLabels:
       app: srv
   policyTypes:
-  - Ingress
   - Egress
