@@ -1,8 +1,18 @@
 # 一个集群一个 Application，由根 Application（app-of-apps）纳管。
 #
-# kube-system.yaml 被显式排除：那一份里的 candidate-kube-dns 的 ingress 不含
-# 53 端口，应用它会切断整个集群的 DNS。平台的 dry-run 已经把这件事算进
-# WOULD_BREAK，这里排除它是**人做的决定**，不是平台悄悄跳过的一步。
+# 布局是 distill/<namespace>/<workload>-<方向>.yaml，因此 recurse 必须开 ——
+# 关着它会一个文件都同步不到，而表现是「Synced 且 Healthy」外加集群里空空
+# 如也，看起来像成功。
+#
+# 两处排除，都是**人做的决定**，不是平台悄悄跳过的一步：
+#
+#   kube-system/  candidate-kube-dns 的 ingress 不含 53 端口，应用它会切断
+#                 整个集群的 DNS。平台已经把这件事算进 WOULD_BREAK。
+#
+#   argocd/       让平台生成的策略去管 GitOps controller 自己是一类特殊风险：
+#                 一旦那份策略错了、Argo 失去 git 或 apiserver 的访问，它就
+#                 再也修不了自己 —— 唯一的出路是人拿 kubectl 进去删。要纳管
+#                 它，得先有一条不依赖 Argo 的恢复路径。
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -15,8 +25,8 @@ spec:
     targetRevision: gitops-demo
     path: clusters/kind-local-e2e/distill
     directory:
-      recurse: false
-      exclude: 'kube-system.yaml'
+      recurse: true
+      exclude: '{kube-system/*,argocd/*}'
   destination:
     server: https://kubernetes.default.svc
   syncPolicy:
